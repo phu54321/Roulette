@@ -1,0 +1,6 @@
+[main]
+input: basemap.scx
+output: Roulette.scx
+
+[main.eps]
+[eudTurbo]
