@@ -1,5 +1,5 @@
-import betInfo;
-import rouletteSound;
+import bet.betRegions;
+import roulette.rouletteSound;
 
 function onPluginStart() {
     rouletteSound.putRouletteSound();
@@ -9,14 +9,13 @@ function onPluginStart() {
     SetMemory(0x51CE98, SetTo, 2);  // Update vision instantly
 
     // Init betting locations
-    betInfo.initBetLocations();
+    betRegions.initBetRegions();
 
     // JYD deco
     SetCurrentPlayer(P8);
     RunAIScriptAt(b'JYDg', 'payHere');
 
     SetCurrentPlayer(P1);
-    betInfo.applyBet(8);
 }
 
 function afterTriggerExec() {
