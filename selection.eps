@@ -1,0 +1,14 @@
+function getSelectedUnit(player) {
+    const pSelEPD = EPD(0x6284E8) + 12 * player;
+
+    // If only one unit is selected
+    if(
+        Memory(pSelEPD, AtLeast, 1) &&
+        Memory(pSelEPD + 1, Exactly, 0)
+    ) {
+        return dwepdread_epd_safe(pSelEPD);
+    }
+    else {
+        return -1, -1;
+    }
+}

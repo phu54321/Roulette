@@ -1,14 +1,24 @@
+import betInfo;
+import rouletteSound;
+
 function onPluginStart() {
-    MPQAddFile(
-        'staredit\\wav\\onSelect.ogg',
-        py_open('res\\onSelect.ogg', 'rb').read()
-    );
+    rouletteSound.putRouletteSound();
 
-    MPQAddFile(
-        'staredit\\wav\\onRoll.ogg',
-        py_open('res\\onRoll.ogg', 'rb').read()
-    );
-
+    // Vision
     RunAIScript("Turn ON Shared Vision for Player 8");
-    SetMemory(0x51CE98, SetTo, 2);
+    SetMemory(0x51CE98, SetTo, 2);  // Update vision instantly
+
+    // Init betting locations
+    betInfo.initBetLocations();
+
+    // JYD deco
+    SetCurrentPlayer(P8);
+    RunAIScriptAt(b'JYDg', 'payHere');
+
+    SetCurrentPlayer(P1);
+    betInfo.applyBet(8);
+}
+
+function afterTriggerExec() {
+    SetInvincibility(Enable, '(any unit)', AllPlayers, 'Anywhere');
 }
