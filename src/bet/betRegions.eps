@@ -4,17 +4,17 @@ import utils.rect;
 import utils.loc;
 import utils.utils;
 
-object BetLoc {
+object BetRegion {
     var pos: rect.Rect;
     var betHereUnitEPD;
     var betHandler: EUDFuncPtr(1, 1);
 };
 
-const betLocations = EUDArray(4 * 4000);
+const betLocations = EUDArray(400);
 var betLocationCount = 0;
 
 function registerBetRegion(x, y, w, h, handler: EUDFuncPtr(1, 1)) {
-    const obj = BetLoc.alloc();
+    const obj = BetRegion.alloc();
     const pos = rect.Rect.alloc();
     pos.x = x;
     pos.y = y;
@@ -65,14 +65,14 @@ function initBetRegions() {
         for(var x = 0 ; x < 11 ; x++) {
             const px0 = x0 + x * (8 * 32) + 6 * 32;
             const py0 = y0 - y * (8 * 32) - 2 * 32;
-            const pw, ph = 3 * 32, 3 * 32;
+            const pw, ph = 3 * 32, 2 * 32;
             const num = x * 3 + y + 1;
             registerBetRegion(px0, py0, pw, ph, betRule.bet_corner[num]);
         }
     }
 
     for(var i = 0 ; i < betLocationCount ; i++) {
-        const obj = BetLoc.cast(betLocations[i]);
+        const obj = BetRegion.cast(betLocations[i]);
         const pos = obj.pos;
         const x, y, w, h = pos.x, pos.y, pos.w, pos.h;
         loc.pxMoveTo(x + w / 2, y + h / 2);
@@ -91,7 +91,7 @@ function initBetRegions() {
 
 function forBetRegion(ballNum, callback: EUDFuncPtr(1, 0)) {
     for(var i = 0 ; i < betLocationCount ; i++) {
-        const obj = BetLoc.cast(betLocations[i]);
+        const obj = BetRegion.cast(betLocations[i]);
         const multiplier = obj.betHandler(ballNum);
         if(multiplier) {
             (callback)(obj);
