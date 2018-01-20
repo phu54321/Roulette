@@ -6,3 +6,9 @@ function setUnitPassable(unitepd) {
     var statusFlag = dwread_epd(unitepd + 0xDC / 4);
     SetMemoryEPD(unitepd + 0xDC / 4, SetTo, statusFlag | 0x200000);
 }
+
+function createPassableUnit(unitType: TrgUnit, location: TrgLocation, player: TrgPlayer) {
+    const uepd = getNextGeneratedUnit()[[1]];
+    CreateUnit(1, unitType, location, player);
+    setUnitPassable(uepd);
+}

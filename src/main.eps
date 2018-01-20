@@ -1,5 +1,8 @@
 import bet.betRegions;
 import utils.sounds;
+import utils.utils;
+import utils.rect;
+import utils.visualutils;
 import roulette.rouletteBoard;
 
 function onPluginStart() {
@@ -21,6 +24,7 @@ function onPluginStart() {
     rouletteBoard.rollRoulette();
 }
 
+
 var t = 0;
 function afterTriggerExec() {
     SetInvincibility(Enable, '(any unit)', AllPlayers, 'Anywhere');
@@ -31,15 +35,18 @@ function afterTriggerExec() {
     }
 
     if(rouletteBoard.isRouletteFinished()) {
+        const rouletteNum = rouletteBoard.getRouletteNumber();
         if(t == 0) {
-            const rouletteNum = rouletteBoard.getRouletteNumber();
             for(var i = 0 ; i < 6 ; i++) {
                 SetCurrentPlayer(i);
                 simpleprint("룰렛 번호는 [", rouletteNum, "] 입니다.");
             }
         }
+        // betRegions.forBetRegion(rouletteNum, function (rgn: betRegions.BetRegion) {
+            // visualutils.makeFilledEffect(rgn.pos, "Effect", P7);
+        // });
         t++;
-        if(t == 50) {
+        if(t == 120) {
             t = 0;
             rouletteBoard.rollRoulette();
         }

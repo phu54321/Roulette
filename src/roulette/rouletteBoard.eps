@@ -99,7 +99,7 @@ function rouletteLoop() {
 
     prevAngle += (newAngle - prevAngle + cossin.angleNum) % cossin.subSubAngleNum;
 
-    RemoveUnit("Protoss Shuttle", P8);
+    RemoveUnit("Ball", P8);
 
     while(1) {
         const c, s = cossin.roulette_lengthdir(r, prevAngle);
@@ -107,15 +107,13 @@ function rouletteLoop() {
         const cx, cy = 128 * 32, 128 * 32;
         loc.pxMoveTo(x + cx, y + cy);
 
-        const uepd = utils.getNextGeneratedUnit()[[1]];
-        CreateUnit(1, "Protoss Shuttle", "pxMove", P8);
-        utils.setUnitPassable(uepd);
-        KillUnit("Protoss Shuttle", P8);
+        utils.createPassableUnit("Ball", "pxMove", $P8);
+        KillUnit("Ball", P8);
         if (prevAngle == newAngle) break;
 
         prevAngle = (prevAngle + cossin.subSubAngleNum) % (cossin.angleNum);
     }
-    CreateUnit(1, "Protoss Shuttle", "pxMove", P8);
+    CreateUnit(1, "Ball", "pxMove", P8);
 }
 
 function isRouletteFinished() {

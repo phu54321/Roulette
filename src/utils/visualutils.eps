@@ -1,0 +1,16 @@
+import utils.rect;
+import utils.utils;
+import utils.loc;
+
+function makeFilledEffect(r: rect.Rect, unitType: TrgUnit, player: TrgPlayer) {
+    const xEnd, yEnd = r.x + r.w, r.y + r.h;
+    for(var y = r.y ; y <= yEnd ; y += 64) {
+        for(var x = r.x ; x <= xEnd ; x += 64 ) {
+            loc.pxMoveTo(x, y);
+            const uepd = utils.getNextGeneratedUnit()[[1]];
+            CreateUnit(1, unitType, "pxMove", player);
+            utils.setUnitPassable(uepd);
+        }
+    }
+    KillUnit(unitType, player);
+}

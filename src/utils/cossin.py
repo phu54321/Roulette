@@ -24,8 +24,8 @@ def f_roulette_lengthdir(length, angle):
     dangle = 2 * math.pi / angleNum
 
     for i in range(angleNum):
-        clist.append(math.floor(math.cos(dangle * (i - 10)) * 65536 + 0.5))
-        slist.append(math.floor(math.sin(dangle * (i - 10)) * 65536 + 0.5))
+        clist.append(math.floor(math.cos(dangle * (i - 7)) * 65536 + 0.5))
+        slist.append(math.floor(math.sin(dangle * (i - 7)) * 65536 + 0.5))
 
     cdb = EUDArray(clist)
     sdb = EUDArray(slist)
