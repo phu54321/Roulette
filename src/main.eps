@@ -1,9 +1,9 @@
 import bet.betRegions;
-import roulette.rouletteSound;
+import utils.sounds;
 import roulette.rouletteBoard;
 
 function onPluginStart() {
-    rouletteSound.putRouletteSound();
+    sounds.loadSounds();
 
     // Vision
     RunAIScript("Turn ON Shared Vision for Player 8");
@@ -17,13 +17,31 @@ function onPluginStart() {
     RunAIScriptAt(b'JYDg', 'payHere');
 
     SetCurrentPlayer(P1);
+
+    rouletteBoard.rollRoulette();
 }
 
+var t = 0;
 function afterTriggerExec() {
     SetInvincibility(Enable, '(any unit)', AllPlayers, 'Anywhere');
     rouletteBoard.rouletteLoop();
     for(var i = 0 ; i < 6 ; i++) {
         SetCurrentPlayer(i);
         MinimapPing("minimapPing");
+    }
+
+    if(rouletteBoard.isRouletteFinished()) {
+        if(t == 0) {
+            const rouletteNum = rouletteBoard.getRouletteNumber();
+            for(var i = 0 ; i < 6 ; i++) {
+                SetCurrentPlayer(i);
+                simpleprint("룰렛 번호는 [", rouletteNum, "] 입니다.");
+            }
+        }
+        t++;
+        if(t == 50) {
+            t = 0;
+            rouletteBoard.rollRoulette();
+        }
     }
 }
