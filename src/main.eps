@@ -1,5 +1,6 @@
 import bet.betRegions;
 import roulette.rouletteSound;
+import roulette.rouletteBoard;
 
 function onPluginStart() {
     rouletteSound.putRouletteSound();
@@ -20,4 +21,9 @@ function onPluginStart() {
 
 function afterTriggerExec() {
     SetInvincibility(Enable, '(any unit)', AllPlayers, 'Anywhere');
+    rouletteBoard.rouletteLoop();
+    for(var i = 0 ; i < 6 ; i++) {
+        SetCurrentPlayer(i);
+        MinimapPing("minimapPing");
+    }
 }

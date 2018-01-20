@@ -1,11 +1,26 @@
 function putRouletteSound() {
-    MPQAddFile(
-        'staredit\\wav\\onSelect.ogg',
-        py_open('res\\onSelect.ogg', 'rb').read()
-    );
-
-    MPQAddFile(
+    MPQAddWave(
         'staredit\\wav\\onRoll.ogg',
-        py_open('res\\onRoll.ogg', 'rb').read()
+        py_open('res\\onRoll.wav', 'rb').read()
     );
+    MPQAddWave(
+        'staredit\\wav\\onSelect.ogg',
+        py_open('res\\onSelect.wav', 'rb').read()
+    );
+}
+
+function playRouletteRolling() {
+    for(var player = 0 ; player < 6 ; player++) {
+        SetCurrentPlayer(player);
+        DisplayText("roll sound played");
+        PlayWAV("staredit\\wav\\onRoll.ogg");
+    }
+}
+
+function playRouletteStartTicks() {
+    for(var player = 0 ; player < 6 ; player++) {
+        SetCurrentPlayer(player);
+        DisplayText("select sound played");
+        PlayWAV("staredit\\wav\\onSelect.ogg");
+    }
 }

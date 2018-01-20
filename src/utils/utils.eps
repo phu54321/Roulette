@@ -1,3 +1,8 @@
 function getNextGeneratedUnit() {
     return dwepdread_epd(EPD(0x628438));
 }
+
+function setUnitPassable(unitepd) {
+    var statusFlag = dwread_epd(unitepd + 0xDC / 4);
+    SetMemoryEPD(unitepd + 0xDC / 4, SetTo, statusFlag | 0x200000);
+}

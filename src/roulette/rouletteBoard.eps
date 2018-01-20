@@ -1,6 +1,120 @@
+import utils.loc;
+import utils.utils;
+import utils.cossin;
+import roulette.rouletteSound;
+
 const numbers = [
     0, 32, 15, 19, 4, 21, 2, 25, 17, 34, 6, 27, 13, 36, 11, 30, 8, 23, 10, 5,
     24, 16, 33, 1, 20, 14, 31, 9, 22, 18, 29, 7, 28, 12, 35, 3, 26,
 ];
 const numCount = 37;
 
+const w_max = 5000;
+const angle_multiplier = 100;
+
+const friction_coeff = 1150000;
+var theta = 0;
+var w = 0;
+
+const max_r, min_r = 125 * 32, 97 * 32;
+const divider_max_r = 115 * 32;
+const divider_min_r = 111 * 32;
+var r = max_r;
+var dr = 0;
+
+const fallw = 2000;
+const fall_constant = 150000;
+const collision_coeff1 = 250;
+const collision_coeff2 = 300;
+
+var tickStarted = 0;
+
+
+function roulettePhysics() {
+    if(w == 0) return;
+
+    // Basic friction
+    const dw = w * w / friction_coeff + 1;
+    w -= dw;
+
+    if(tickStarted == 0) w += rand() % (angle_multiplier / 5) - (angle_multiplier / 10);   // Add randomness
+    r += dr;
+
+    // ok.
+    if(w >= 0x80000000) w = 0;
+
+    // Gravity if w gets below certain point
+    // f = mv2/r →  mgsin(d) > mv2r : gsin(d) > rw2 : w < sqrt(g/r sin(d)) = fallw
+    //  → a = (gsind-rw2) = r(fallw2 - w2)
+    if(w < fallw) dr -= (fallw * fallw - w * w) / fall_constant;
+
+    // Collision with divider
+    var dividerCollided = 0;
+    var a1 = theta % (cossin.subAngleNum * angle_multiplier);
+    if (a1 + w > (cossin.subAngleNum * angle_multiplier)) dividerCollided = 1;
+    if(r > divider_max_r) dividerCollided = 0;
+    theta = (theta + w) % (cossin.angleNum * angle_multiplier);
+
+    if(dividerCollided) {
+        if(r >= divider_min_r) {
+            if(dr >= 0x80000000) {
+                const rPercentage = (r - divider_min_r) * 100 / (divider_max_r - divider_min_r);
+                w -= w * collision_coeff1 / 1000 * (100 - rPercentage) / 100;
+                dr += (-dr) * (1500 - collision_coeff1) / 500 * rPercentage / 100;
+            }
+        }
+        else {
+            w -= w * collision_coeff2 / 1000 + angle_multiplier / 2;
+        }
+        if(tickStarted <= 2) {
+            tickStarted++;
+            if(tickStarted == 3) rouletteSound.playRouletteStartTicks();
+        }
+        if(w >= 0x80000000) w = 0;
+    }
+
+    if(r < min_r) {
+        r = min_r;
+        if(dr >= 0x80000000) dr = 0;
+    }
+    else if(r > max_r) {
+        r = max_r;
+        if(dr < 0x80000000) dr = 0;
+    }
+}
+
+function rollRoulette() {
+    r = max_r;
+    dr = 0;
+    theta = dwrand() % (cossin.angleNum * angle_multiplier);
+    w = w_max;
+    tickStarted = 0;
+    rouletteSound.playRouletteRolling();
+}
+
+function rouletteLoop() {
+    if(w == 0) rollRoulette();
+
+    var prevAngle = theta / angle_multiplier;
+    roulettePhysics();
+    var newAngle = theta / angle_multiplier;
+
+    prevAngle += (newAngle - prevAngle + cossin.angleNum) % cossin.subSubAngleNum;
+
+    RemoveUnit("Protoss Shuttle", P8);
+
+    while(1) {
+        const x, y = cossin.roulette_lengthdir(r, prevAngle);
+        const cx, cy = 128 * 32, 128 * 32;
+        loc.pxMoveTo(x + cx, y + cy);
+
+        const uepd = utils.getNextGeneratedUnit()[[1]];
+        CreateUnit(1, "Protoss Shuttle", "pxMove", P8);
+        utils.setUnitPassable(uepd);
+        KillUnit("Protoss Shuttle", P8);
+        if (prevAngle == newAngle) break;
+
+        prevAngle = (prevAngle + cossin.subSubAngleNum) % (cossin.angleNum);
+    }
+    CreateUnit(1, "Protoss Shuttle", "pxMove", P8);
+}
