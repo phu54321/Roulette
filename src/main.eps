@@ -41,12 +41,13 @@ function afterTriggerExec() {
                 SetCurrentPlayer(i);
                 simpleprint("룰렛 번호는 [", rouletteNum, "] 입니다.");
             }
+            betRegions.forBetRegion(rouletteNum, function (rgn: betRegions.BetRegion) {
+                visualutils.fillRect(rgn.pos, "Winner", P7);
+            });
         }
-        // betRegions.forBetRegion(rouletteNum, function (rgn: betRegions.BetRegion) {
-            // visualutils.makeFilledEffect(rgn.pos, "Effect", P7);
-        // });
         t++;
-        if(t == 120) {
+        if(t == 30 * 24) {
+            KillUnit("Winner", P7);
             t = 0;
             rouletteBoard.rollRoulette();
         }
