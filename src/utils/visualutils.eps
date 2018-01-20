@@ -6,8 +6,11 @@ function fillRect(r: rect.Rect, unitType: TrgUnit, player: TrgPlayer) {
     const xEnd, yEnd = r.x + r.w, r.y + r.h;
     const dx = r.w / (r.w / 129 + 1);
     const dy = r.h / (r.h / 129 + 1);
+    const cx, cy = r.x + r.w / 2, r.y + r.h / 2;
+    const tolerance = 32;
     for(var y = r.y ; y <= yEnd ; y += dy) {
         for(var x = r.x ; x <= xEnd ; x += dx ) {
+            if(x - cx + tolerance <= 2 * tolerance && y - cy + tolerance <= 2 * tolerance) continue;
             loc.pxMoveTo(x, y);
             const uepd = utils.getNextGeneratedUnit()[[1]];
             CreateUnit(1, unitType, "pxMove", player);

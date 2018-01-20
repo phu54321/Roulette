@@ -50,7 +50,7 @@ function roulettePhysics() {
 
     // Collision with divider
     var dividerCollided = 0;
-    var a1 = theta % (cossin.subAngleNum * angle_multiplier);
+    var a1 = (theta + cossin.subAngleNum * angle_multiplier / 5) % (cossin.subAngleNum * angle_multiplier);
     if (a1 + w > (cossin.subAngleNum * angle_multiplier)) dividerCollided = 1;
     if(r > divider_max_r) dividerCollided = 0;
     theta = (theta + w) % (cossin.angleNum * angle_multiplier);
@@ -66,9 +66,9 @@ function roulettePhysics() {
         else {
             w -= w * collision_coeff2 / 1000 + angle_multiplier / 2;
         }
-        if(tickStarted <= 2) {
+        if(tickStarted == 0 && w <= fallw * 6 / 10) {
             tickStarted++;
-            if(tickStarted == 3) sounds.playRouletteStartTicks();
+            sounds.playRouletteStartTicks();
         }
         if(w >= 0x80000000) w = 0;
     }
