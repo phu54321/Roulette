@@ -1,0 +1,15 @@
+import utils.loc;
+import utils.utils;
+
+function translateScanToPosition() {
+    for(var ptr = 0x59CCA8 ; ptr < 0x59CCA8 + 1700 * 336 ; ptr += 336) {
+        if(Memory(ptr + 0x0C, AtLeast, 1) && wread(ptr + 0x64) == $U("Scan")) {
+            const scanX, scanY = dwbreak(dwread(ptr + 0x28))[[0, 1]];
+            const scanPlayer = bread(ptr + 0x4C);
+            loc.pxMoveTo(scanX, scanY);
+            utils.createPassableUnit("ScanPos", "pxMove", scanPlayer);
+        }
+    }
+    RemoveUnit("Scan", AllPlayers);
+}
+

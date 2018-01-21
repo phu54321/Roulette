@@ -1,26 +1,12 @@
 import bet.betRegions;
+import bet.betProcess;
 import utils.sounds;
 import utils.utils;
 import utils.rect;
 import utils.visualutils;
 import roulette.rouletteProcess;
-
-const playerLocs = [
-    EncodeLocation("p1Money"),
-    EncodeLocation("p2Money"),
-    EncodeLocation("p3Money"),
-    EncodeLocation("p4Money"),
-    EncodeLocation("p5Money"),
-    EncodeLocation("p6Money"),
-];
-
-const moneyUnits = [
-    $U("10만원"),
-    $U("100만원"),
-    $U("1000만원"),
-    $U("1억"),
-    $U("10억"),
-];
+import chips;
+import scan2pos;
 
 function onPluginStart() {
     sounds.loadSounds();
@@ -55,8 +41,12 @@ var state = STATE_BET;
 
 var t = 0;
 function afterTriggerExec() {
+    scan2pos.translateScanToPosition();
+
     KillUnit("(any unit)", P12);
     SetInvincibility(Enable, '(any unit)', AllPlayers, 'Anywhere');
+
+    betProcess.updateBetUnits();
 
     t++;
     if(t == 120) {
@@ -67,44 +57,6 @@ function afterTriggerExec() {
             SetResources(P1, Subtract, rand() % 1000, Ore);
     }
 
-    // 현재 돈을 칩으로 환전하기!
-    for(var player = 0 ; player < 6 ; player++) {
-        if(playerexist(player)) {
-            MoveLocation("moneyLoc", "Map Revealer", P12, playerLocs[player]);
-
-            // Read current resource
-            const expectedCount = EUDArray(5);
-            var playerMoney = dwread_epd(EPD(0x57F0F0) + player);
-            var denominator = 100000;
-            for(var i = 4 ; i != -1 ; i--) {
-                expectedCount[i] = playerMoney / denominator;
-                playerMoney %= denominator;
-                denominator /= 10;
-            }
-
-            for(var i = 0 ; i < 5 ; i++) {
-                if(Bring(P7, AtLeast, expectedCount[i] + 1, moneyUnits[i], 'moneyLoc')) {
-                    RemoveUnitAt(1, moneyUnits[i], "moneyLoc", P7);
-                }
-
-                if(expectedCount[i] && Bring(P7, AtMost, expectedCount[i] - 1, moneyUnits[i], 'moneyLoc')) {
-                    CreateUnit(1, moneyUnits[i], "moneyLoc", P7);
-                }
-            }
-        }
-    }
-    
-    // Minimap update
-    for(var player = 0 ; player < 6 ; player++) {
-        SetCurrentPlayer(player);
-        MinimapPing("minimapPing");
-    }
-
-    // Repulse map to 0
-    const reph_epd = epdread_epd(EPD(0x6D5CD8));
-    for(var i = 0 ; i < 29244 / 4 ; i++) {
-        SetMemoryEPD(reph_epd + i, SetTo, 0);
-    }
 
     // State machine
     if (state == STATE_ROULETTE) {
@@ -116,4 +68,11 @@ function afterTriggerExec() {
         rouletteProcess.startRoulette();
         state = STATE_ROULETTE;
     }
+
+    // Various updates
+    chips.updateChipDisplay();
+    utils.updateMinimap();
+    utils.clearRepulseMap();
+
+    RemoveUnit("ScanPos", Force1);
 }

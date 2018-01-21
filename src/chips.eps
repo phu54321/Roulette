@@ -1,0 +1,49 @@
+const chipUnits = [
+    $U("10만원"),
+    $U("100만원"),
+    $U("1000만원"),
+    $U("1억"),
+    $U("10억"),
+];
+
+const playerChipLoc = [
+    EncodeLocation("p1Money"),
+    EncodeLocation("p2Money"),
+    EncodeLocation("p3Money"),
+    EncodeLocation("p4Money"),
+    EncodeLocation("p5Money"),
+    EncodeLocation("p6Money"),
+];
+
+
+function updateChipDisplay() {
+    for(var player = 0 ; player < 6 ; player++) {
+        MoveLocation("moneyLoc", "Map Revealer", P12, playerChipLoc[player]);
+        if(playerexist(player)) {
+            // Read current resource
+            const expectedCount = EUDArray(5);
+            var playerMoney = dwread_epd(EPD(0x57F0F0) + player);
+            var denominator = 100000;
+            for(var i = 4 ; i != -1 ; i--) {
+                expectedCount[i] = playerMoney / denominator;
+                playerMoney %= denominator;
+                denominator /= 10;
+            }
+
+            for(var i = 0 ; i < 5 ; i++) {
+                if(Bring(P7, AtLeast, expectedCount[i] + 1, chipUnits[i], 'moneyLoc')) {
+                    RemoveUnitAt(1, chipUnits[i], "moneyLoc", P7);
+                }
+
+                if(expectedCount[i] && Bring(P7, AtMost, expectedCount[i] - 1, chipUnits[i], 'moneyLoc')) {
+                    CreateUnit(1, chipUnits[i], "moneyLoc", P7);
+                }
+            }
+        }
+        else {
+            for(var i = 0 ; i < 5 ; i++) {
+                KillUnitAt(All, chipUnits[i], "moneyLoc", P7);
+            }
+        }
+    }
+}

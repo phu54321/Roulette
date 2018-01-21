@@ -12,3 +12,18 @@ function createPassableUnit(unitType: TrgUnit, location: TrgLocation, player: Tr
     CreateUnit(1, unitType, location, player);
     setUnitPassable(uepd);
 }
+
+
+function updateMinimap() {
+    for(var player = 0 ; player < 6 ; player++) {
+        SetCurrentPlayer(player);
+        MinimapPing("minimapPing");
+    }
+}
+
+function clearRepulseMap() {
+    const reph_epd = epdread_epd(EPD(0x6D5CD8));
+    for(var i = 0 ; i < 29244 / 4 ; i++) {
+        SetMemoryEPD(reph_epd + i, SetTo, 0);
+    }
+}
