@@ -3,54 +3,117 @@ import utils.sounds;
 import utils.utils;
 import utils.rect;
 import utils.visualutils;
-import roulette.rouletteBoard;
+import roulette.rouletteProcess;
+
+const playerLocs = [
+    EncodeLocation("p1Money"),
+    EncodeLocation("p2Money"),
+    EncodeLocation("p3Money"),
+    EncodeLocation("p4Money"),
+    EncodeLocation("p5Money"),
+    EncodeLocation("p6Money"),
+];
+
+const moneyUnits = [
+    $U("10만원"),
+    $U("100만원"),
+    $U("1000만원"),
+    $U("1억"),
+    $U("10억"),
+];
 
 function onPluginStart() {
     sounds.loadSounds();
     randomize();
 
+    for(var player = 0 ; player < 6 ; player++) {
+        if(playerexist(player)) {
+            SetCurrentPlayer(player);
+            SetResources(player, SetTo, 1000, Ore);
+            DisplayText("\04초기자금 1000만원이 주어졌습니다.");
+        }
+    }
+
     // Vision
     RunAIScript("Turn ON Shared Vision for Player 8");
     SetMemory(0x51CE98, SetTo, 2);  // Update vision instantly
 
+    // Leaderboard
+    LeaderBoardResources(Ore, "\x03현\x04재 자본");
+    LeaderBoardComputerPlayers(Disable);
+
     // Init betting locations
     betRegions.initBetRegions();
 
-    // JYD deco
-    SetCurrentPlayer(P8);
-    RunAIScriptAt(b'JYDg', 'payHere');
-
-    SetCurrentPlayer(P1);
-
-    rouletteBoard.rollRoulette();
+    rouletteProcess.startRoulette();
 }
 
 
+const STATE_BET = 0;
+const STATE_ROULETTE = 1;
+var state = STATE_BET;
+
 var t = 0;
 function afterTriggerExec() {
+    KillUnit("(any unit)", P12);
     SetInvincibility(Enable, '(any unit)', AllPlayers, 'Anywhere');
-    rouletteBoard.rouletteLoop();
-    for(var i = 0 ; i < 6 ; i++) {
-        SetCurrentPlayer(i);
+
+    t++;
+    if(t == 120) {
+        t = 0;
+        if(rand() % 2 == 0)
+            SetResources(P1, Add, rand() % 1000, Ore);
+        else
+            SetResources(P1, Subtract, rand() % 1000, Ore);
+    }
+
+    // 현재 돈을 칩으로 환전하기!
+    for(var player = 0 ; player < 6 ; player++) {
+        if(playerexist(player)) {
+            MoveLocation("moneyLoc", "Map Revealer", P12, playerLocs[player]);
+
+            // Read current resource
+            const expectedCount = EUDArray(5);
+            var playerMoney = dwread_epd(EPD(0x57F0F0) + player);
+            var denominator = 100000;
+            for(var i = 4 ; i != -1 ; i--) {
+                expectedCount[i] = playerMoney / denominator;
+                playerMoney %= denominator;
+                denominator /= 10;
+            }
+
+            for(var i = 0 ; i < 5 ; i++) {
+                if(Bring(P7, AtLeast, expectedCount[i] + 1, moneyUnits[i], 'moneyLoc')) {
+                    RemoveUnitAt(1, moneyUnits[i], "moneyLoc", P7);
+                }
+
+                if(expectedCount[i] && Bring(P7, AtMost, expectedCount[i] - 1, moneyUnits[i], 'moneyLoc')) {
+                    CreateUnit(1, moneyUnits[i], "moneyLoc", P7);
+                }
+            }
+        }
+    }
+    
+    // Minimap update
+    for(var player = 0 ; player < 6 ; player++) {
+        SetCurrentPlayer(player);
         MinimapPing("minimapPing");
     }
 
-    if(rouletteBoard.isRouletteFinished()) {
-        const rouletteNum = rouletteBoard.getRouletteNumber();
-        if(t == 0) {
-            for(var i = 0 ; i < 6 ; i++) {
-                SetCurrentPlayer(i);
-                simpleprint("룰렛 번호는 [", rouletteNum, "] 입니다.");
-            }
-            betRegions.forBetRegion(rouletteNum, function (rgn: betRegions.BetRegion) {
-                visualutils.fillRect(rgn.pos, "Winner", P7);
-            });
+    // Repulse map to 0
+    const reph_epd = epdread_epd(EPD(0x6D5CD8));
+    for(var i = 0 ; i < 29244 / 4 ; i++) {
+        SetMemoryEPD(reph_epd + i, SetTo, 0);
+    }
+
+    // State machine
+    if (state == STATE_ROULETTE) {
+        if(rouletteProcess.rouletteLoop() == 0) {
+            state = STATE_BET;
         }
-        t++;
-        if(t == 15 * 24) {
-            KillUnit("Winner", P7);
-            t = 0;
-            rouletteBoard.rollRoulette();
-        }
+    }
+    if (state == STATE_BET) {
+        rouletteProcess.startRoulette();
+        state = STATE_ROULETTE;
     }
 }

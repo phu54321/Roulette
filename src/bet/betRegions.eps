@@ -7,7 +7,7 @@ import utils.utils;
 object BetRegion {
     var pos: rect.Rect;
     var betHereUnitEPD;
-    var betHandler: EUDFuncPtr(1, 1);
+    var betChecker: EUDFuncPtr(1, 1);
 };
 
 const betLocations = EUDArray(400);
@@ -21,7 +21,7 @@ function registerBetRegion(x, y, w, h, handler: EUDFuncPtr(1, 1)) {
     pos.w = w;
     pos.h = h;
     obj.pos = pos;
-    obj.betHandler = handler;
+    obj.betChecker = handler;
     betLocations[betLocationCount] = obj;
     betLocationCount++;
 }
@@ -89,12 +89,8 @@ function initBetRegions() {
     }
 }
 
-function forBetRegion(ballNum, callback: EUDFuncPtr(1, 0)) {
+function loopBetRegions(callback: EUDFuncPtr(1, 0)) {
     for(var i = 0 ; i < betLocationCount ; i++) {
-        const obj = BetRegion.cast(betLocations[i]);
-        const multiplier = obj.betHandler(ballNum);
-        if(multiplier) {
-            (callback)(obj);
-        }
+        callback(betLocations[i]);
     }
 }

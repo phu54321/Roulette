@@ -1,0 +1,38 @@
+import roulette.roulettePhysics;
+import bet.betRegions;
+import utils.visualutils;
+import utils.sounds;
+import utils.tprint;
+
+var t = 0;
+
+function startRoulette() {
+    t = 0;
+    roulettePhysics.rollRoulette();
+}
+
+function rouletteLoop() {
+    roulettePhysics.rouletteLoop();
+
+    if(roulettePhysics.isRouletteFinished()) {
+        const rouletteNum = roulettePhysics.getRouletteNumber();
+        if(t == 0) {
+            sounds.playRouletteCompleteSound();
+            tprint.b("룰렛 번호는 [", rouletteNum, "] 입니다.");
+            betRegions.loopBetRegions(function (rgn: betRegions.BetRegion) {
+                const multiplier = rgn.betChecker(rouletteNum);
+                if(multiplier) {
+                    visualutils.fillRect(rgn.pos, "Winner", P7);
+                }
+            });
+        }
+        t++;
+        if(t == 15 * 24) {
+            KillUnit("Winner", P7);
+            t = 0;
+            return 0;
+        }
+    }
+
+    return 1;
+}

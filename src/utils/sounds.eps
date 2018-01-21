@@ -6,16 +6,21 @@ function loadSounds() {
     MPQAddWave('staredit\\wav\\powerUp.ogg', py_open('res\\powerUp.wav', 'rb').read());
 }
 
-function playRouletteRolling() {
+function broadcastSound(wavName: TrgString) {
     for(var player = 0 ; player < 6 ; player++) {
         SetCurrentPlayer(player);
-        PlayWAV("staredit\\wav\\onRoll.ogg");
+        PlayWAV(wavName);
     }
 }
 
+function playRouletteRolling() {
+    broadcastSound("staredit\\wav\\onRoll.ogg");
+}
+
 function playRouletteStartTicks() {
-    for(var player = 0 ; player < 6 ; player++) {
-        SetCurrentPlayer(player);
-        PlayWAV("staredit\\wav\\onSelect.ogg");
-    }
+    broadcastSound("staredit\\wav\\onSelect.ogg");
+}
+
+function playRouletteCompleteSound() {
+    broadcastSound("staredit\\wav\\powerUp.ogg");
 }
