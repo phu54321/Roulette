@@ -2,8 +2,6 @@ import bet.betRegions;
 import bet.betProcess;
 import utils.sounds;
 import utils.utils;
-import utils.rect;
-import utils.visualutils;
 import roulette.rouletteProcess;
 import chips;
 import scan2pos;
@@ -16,7 +14,7 @@ function onPluginStart() {
         if(playerexist(player)) {
             SetCurrentPlayer(player);
             SetResources(player, SetTo, 1000, Ore);
-            DisplayText("\04초기자금 1000만원이 주어졌습니다.");
+            DisplayText("\04초기자금 \x071000만원\x04이 주어졌습니다.");
         }
     }
 
@@ -25,7 +23,7 @@ function onPluginStart() {
     SetMemory(0x51CE98, SetTo, 2);  // Update vision instantly
 
     // Leaderboard
-    LeaderBoardResources(Ore, "\x03현\x04재 자본");
+    LeaderBoardResources(Ore, "\x04현재 자본");
     LeaderBoardComputerPlayers(Disable);
 
     // Init betting locations
