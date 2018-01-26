@@ -17,10 +17,19 @@ function startRoulette() {
 function rouletteLoop() {
     roulettePhysics.rouletteLoop();
 
+    for(var player = 0 ; player < 6 ; player++) {
+        if(playerexist(player) && Bring(player, AtLeast, 1, "ScanPos", "betZone")) {
+            SetCurrentPlayer(player);
+            DisplayText("\x03[에러] \x06베팅할 수 없습니다.");
+            PlayWAV("sound\\Misc\\PError.WAV");
+        }
+    }
+
+
     if(roulettePhysics.isRouletteFinished()) {
         const rouletteNum = roulettePhysics.getRouletteNumber();
         if(t == 0) {
-            sounds.playRouletteCompleteSound();
+            sounds.broadcastSound("staredit\\wav\\powerUp.ogg");
             utils.broadcastText(rouletteString.stringTable[rouletteNum]);
 
             // 승자 표시
@@ -39,6 +48,9 @@ function rouletteLoop() {
         if(t >= 5 * 24 && Bring(Force1, Exactly, 0, '(men)', 'betZone')) {
             KillUnit("Winner", P7);
             t = 0;
+            SetResources(Force1, Add, 500, Ore);
+            utils.broadcastText("\x07 * \x04월급 500만원이 주어졌습니다.");
+            sounds.broadcastSound("staredit\\wav\\onIncome.ogg");
             return 0;
         }
     }

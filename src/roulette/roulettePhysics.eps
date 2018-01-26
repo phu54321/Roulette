@@ -68,7 +68,7 @@ function roulettePhysics() {
         }
         if(tickStarted == 0 && w <= fallw * 65 / 100) {
             tickStarted++;
-            sounds.playRouletteStartTicks();
+            sounds.broadcastSound("staredit\\wav\\onSelect.ogg");
         }
         if(w >= 0x80000000) w = 0;
     }
@@ -89,7 +89,7 @@ function rollRoulette() {
     theta = dwrand() % (cossin.angleNum * angle_multiplier);
     w = w_max;
     tickStarted = 0;
-    sounds.playRouletteRolling();
+    sounds.broadcastSound("staredit\\wav\\onRoll.ogg");
 }
 
 function rouletteLoop() {

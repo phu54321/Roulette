@@ -14,7 +14,8 @@ function onPluginStart() {
         if(playerexist(player)) {
             SetCurrentPlayer(player);
             SetResources(player, SetTo, 10000, Ore);
-            DisplayText("\04초기자금 \x071억원\x04이 주어졌습니다.");
+            DisplayText("\x13\x03==============================\n\x13\x04집 값 룰 렛              　\n\x13\x05         Created by cpy3001\n\x13\x03==============================\n\n\x135억을 벌어 아파트에 입주하세요!");
+            SetMissionObjectives("\x03스캔으로 베팅금액 / 범위 설정 가능\n\n\x07 * \x04베팅금액: 위쪽의 \x1110, 100, 1000, 10000 \x04스캔\n\x07 * \x04베팅범위: 아래 \x10사이언스베슬/커세어 \x04스캔\n\n\x07배당률: \x0436 / (해당하는 숫자 갯수)");
         }
     }
 
@@ -28,15 +29,19 @@ function onPluginStart() {
 
     // Init betting locations
     betRegions.initBetRegions();
-    rouletteProcess.startRoulette();
+    betProcess.startBetting();
 }
 
 
 const STATE_BET = 0;
 const STATE_ROULETTE = 1;
-var state = STATE_ROULETTE;
+var state = STATE_BET;
+var isGameOver = false;
+
+function gameEndProcess();
 
 function afterTriggerExec() {
+    if(isGameOver) return;
     scan2pos.translateScanToPosition();
 
     KillUnit("(any unit)", P12);
@@ -51,7 +56,7 @@ function afterTriggerExec() {
             state = STATE_BET;
         }
     }
-    if (state == STATE_BET) {
+    else if (state == STATE_BET) {
         if(betProcess.bettingLoop() == 0) {
             rouletteProcess.startRoulette();
             state = STATE_ROULETTE;
@@ -59,9 +64,46 @@ function afterTriggerExec() {
     }
 
     // Various updates
+    gameEndProcess();
     chips.updateChipDisplay();
     utils.updateMinimap();
-    // utils.clearRepulseMap();
 
     RemoveUnit("ScanPos", Force1);
+}
+
+
+function gameEndProcess() {
+    const isVictoryPlayer = EUDArray(6);
+
+    for(var player = 0 ; player < 6 ; player++) {
+        SetCurrentPlayer(player);
+        if(MostResources(Ore) && Accumulate(CurrentPlayer, AtLeast, 50000, Ore)) {
+            DisplayText("\n\x03※※※※※※※※※※※※※※\n\x045억을 벌었습니다.\n\x03※※※※※※※※※※※※※※\n");
+            PlayWAV("sound\\Misc\\transmission.WAV");
+            PlayWAV("staredit\\wav\\onVictory.ogg");
+            isGameOver = true;
+            isVictoryPlayer[player] = 1;
+        }
+    }
+
+    if(isGameOver) {
+        for(var player = 0 ; player < 6 ; player++) {
+            SetCurrentPlayer(player);
+            if(!isVictoryPlayer[player]) {
+                DisplayText("\x06누군가 이미 5억을 벌었습니다....");
+                PlayWAV("sound\\Misc\\transmission.WAV");
+                Defeat();
+            }
+            else {
+                SetAllianceStatus(Force1, AlliedVictory);
+            }
+        }
+
+        for(var player = 0 ; player < 6 ; player++) {
+            SetCurrentPlayer(player);
+            if(isVictoryPlayer[player]) {
+                Victory();
+            }
+        }
+    }
 }
