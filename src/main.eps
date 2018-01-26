@@ -28,8 +28,7 @@ function onPluginStart() {
 
     // Init betting locations
     betRegions.initBetRegions();
-
-    rouletteProcess.startRoulette();
+    betProcess.startBetting();
 }
 
 
@@ -37,7 +36,6 @@ const STATE_BET = 0;
 const STATE_ROULETTE = 1;
 var state = STATE_BET;
 
-var t = 0;
 function afterTriggerExec() {
     scan2pos.translateScanToPosition();
 
@@ -46,31 +44,24 @@ function afterTriggerExec() {
 
     betProcess.updateBetUnits();
 
-    t++;
-    if(t == 120) {
-        t = 0;
-        if(rand() % 2 == 0)
-            SetResources(P1, Add, rand() % 1000, Ore);
-        else
-            SetResources(P1, Subtract, rand() % 1000, Ore);
-    }
-
-
     // State machine
     if (state == STATE_ROULETTE) {
         if(rouletteProcess.rouletteLoop() == 0) {
+            betProcess.startBetting();
             state = STATE_BET;
         }
     }
     if (state == STATE_BET) {
-        rouletteProcess.startRoulette();
-        state = STATE_ROULETTE;
+        if(betProcess.bettingLoop() == 0) {
+            rouletteProcess.startRoulette();
+            state = STATE_ROULETTE;
+        }
     }
 
     // Various updates
     chips.updateChipDisplay();
     utils.updateMinimap();
-    utils.clearRepulseMap();
+    // utils.clearRepulseMap();
 
     RemoveUnit("ScanPos", Force1);
 }

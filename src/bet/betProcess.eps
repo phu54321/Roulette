@@ -1,31 +1,37 @@
 import bet.betRegions;
-
+import utils.loc;
+import utils.utils;
 
 const betUnit = EUDArray(6);
+const betCost = EUDArray(6);
 
 function updatePlayerBetUnit(player) {
     SetCurrentPlayer(player);
     var betChanged = 0;
     if(Bring(player, AtLeast, 1, "ScanPos", "100,000")) {
         DisplayText("\x04베팅 단위를 \x0710만원\x04으로 설정하였습니다.");
-        betUnit[player] = 10;
+        betUnit[player] = $U("10만원 베팅");
+        betCost[player] = 10;
         betChanged = 1;
     }
 
     else if(Bring(player, AtLeast, 1, "ScanPos", "1,000,000")) {
         DisplayText("\x04베팅 단위를 \x07100만원\x04으로 설정하였습니다.");
-        betUnit[player] = 100;
+        betUnit[player] = $U("100만원 베팅");
+        betCost[player] = 100;
         betChanged = 1;
     }
 
     else if(Bring(player, AtLeast, 1, "ScanPos", "10,000,000")) {
-        DisplayText("\x04베팅 단위를 \x07100만원\x04으로 설정하였습니다.");
-        betUnit[player] = 1000;
+        DisplayText("\x04베팅 단위를 \x071000만원\x04으로 설정하였습니다.");
+        betUnit[player] = $U("1000만원 베팅");
+        betCost[player] = 1000;
         betChanged = 1;
     }
     else if(Bring(player, AtLeast, 1, "ScanPos", "100,000,000")) {
         DisplayText("\x04베팅 단위를 \x071억\x04으로 설정하였습니다.");
-        betUnit[player] = 10000;
+        betUnit[player] = $U("1억 베팅");
+        betCost[player] = 10000;
         betChanged = 1;
     }
 
@@ -42,6 +48,43 @@ function updateBetUnits() {
 }
 
 
-function betLoop() {
+function startBetting() {
+    utils.broadcastText("\04베팅을 시작하세요!");
+    SetCountdownTimer(SetTo, 30);
+}
 
+
+function bettingLoop() {
+    betRegions.loopBetRegions(function (rgn: betRegions.BetRegion) {
+        const pos = rgn.pos;
+        const x, y, w, h = pos.x, pos.y, pos.w, pos.h;
+        loc.setLocationPos($L("cloc1"), x, y, w, h);
+
+        for(var player = 0 ; player < 6 ; player++) {
+            if(playerexist(player)) {
+                const bCost, bUnit = betCost[player], betUnit[player];
+
+                if(bCost != 0) {
+                    if(
+                        Accumulate(player, AtLeast, bCost, Ore) &&
+                        Bring(player, AtLeast, 1, "ScanPos", "cloc1")
+                    ) {
+                        SetCurrentPlayer(player);
+                        /**/ if(bCost == 100000) DisplayText("\x07십만원\x04원을 베팅하셨습니다.");
+                        else if(bCost == 1000000) DisplayText("\x07백만원\x04원을 베팅하셨습니다.");
+                        else if(bCost == 10000000) DisplayText("\x07천만원\x04원을 베팅하셨습니다.");
+                        else if(bCost == 100000000) DisplayText("\x071억\x04원을 베팅하셨습니다.");
+                        RemoveUnitAt(1, "ScanPos", "cloc1", player);
+                        utils.createPassableUnit(bUnit, "cloc1", player);
+                        SetResources(player, Subtract, bCost, Ore);
+                    }
+                }
+            }
+        }
+
+        Order("(any unit)", AllPlayers, "cloc1", Move, "cloc1");
+    });
+
+    if (CountdownTimer(Exactly, 0)) return 0;
+    else return 1;
 }

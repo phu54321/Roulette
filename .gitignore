@@ -113,3 +113,5 @@ $RECYCLE.BIN/
 __epspy__/
 
 Scm*.tmp
+*.epmap
+*.epmap.prof

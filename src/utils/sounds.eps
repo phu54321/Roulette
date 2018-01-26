@@ -1,10 +1,10 @@
 // Sound from https://www.youtube.com/watch?v=PpXCM5YKimM
 
 function loadSounds() {
-    MPQAddWave('staredit\\wav\\onRoll.ogg', py_open('res\\onRoll.wav', 'rb').read());
-    MPQAddWave('staredit\\wav\\onSelect.ogg', py_open('res\\onSelect.wav', 'rb').read());
-    MPQAddWave('staredit\\wav\\powerUp.ogg', py_open('res\\powerUp.wav', 'rb').read());
-    MPQAddWave('staredit\\wav\\reload.ogg', py_open('res\\reload.wav', 'rb').read());
+    MPQAddFile('staredit\\wav\\onRoll.ogg', py_open('res\\onRoll.ogg', 'rb').read());
+    MPQAddFile('staredit\\wav\\onSelect.ogg', py_open('res\\onSelect.ogg', 'rb').read());
+    MPQAddFile('staredit\\wav\\powerUp.ogg', py_open('res\\powerUp.ogg', 'rb').read());
+    MPQAddFile('staredit\\wav\\reload.ogg', py_open('res\\reload.ogg', 'rb').read());
 }
 
 function broadcastSound(wavName: TrgString) {

@@ -23,7 +23,17 @@ function updateMinimap() {
 
 function clearRepulseMap() {
     const reph_epd = epdread_epd(EPD(0x6D5CD8));
+    const oldcp = getcurpl();
+    setcurpl(reph_epd);
     for(var i = 0 ; i < 29244 / 4 ; i++) {
-        SetMemoryEPD(reph_epd + i, SetTo, 0);
+        SetDeaths(CurrentPlayer, SetTo, 0, 0);
+        SetMemory(0x6509B0, Add, 1);
+    }
+}
+
+function broadcastText(msg: TrgString) {
+    for(var player = 0 ; player < 6 ; player++) {
+        SetCurrentPlayer(player);
+        DisplayText(msg);
     }
 }

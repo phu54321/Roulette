@@ -1,8 +1,9 @@
 import roulette.roulettePhysics;
+import roulette.rouletteString;
 import bet.betRegions;
 import utils.visualutils;
 import utils.sounds;
-import utils.tprint;
+import utils.utils;
 
 var t = 0;
 
@@ -18,7 +19,7 @@ function rouletteLoop() {
         const rouletteNum = roulettePhysics.getRouletteNumber();
         if(t == 0) {
             sounds.playRouletteCompleteSound();
-            tprint.b("룰렛 번호는 [", rouletteNum, "] 입니다.");
+            utils.broadcastText(rouletteString.stringTable[rouletteNum]);
             betRegions.loopBetRegions(function (rgn: betRegions.BetRegion) {
                 const multiplier = rgn.betChecker(rouletteNum);
                 if(multiplier) {
