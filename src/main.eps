@@ -13,8 +13,8 @@ function onPluginStart() {
     for(var player = 0 ; player < 6 ; player++) {
         if(playerexist(player)) {
             SetCurrentPlayer(player);
-            SetResources(player, SetTo, 1000, Ore);
-            DisplayText("\04초기자금 \x071000만원\x04이 주어졌습니다.");
+            SetResources(player, SetTo, 10000, Ore);
+            DisplayText("\04초기자금 \x071억원\x04이 주어졌습니다.");
         }
     }
 
@@ -28,13 +28,13 @@ function onPluginStart() {
 
     // Init betting locations
     betRegions.initBetRegions();
-    betProcess.startBetting();
+    rouletteProcess.startRoulette();
 }
 
 
 const STATE_BET = 0;
 const STATE_ROULETTE = 1;
-var state = STATE_BET;
+var state = STATE_ROULETTE;
 
 function afterTriggerExec() {
     scan2pos.translateScanToPosition();

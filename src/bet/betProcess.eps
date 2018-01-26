@@ -1,6 +1,7 @@
 import bet.betRegions;
 import utils.loc;
 import utils.utils;
+import utils.visualutils;
 
 const betUnit = EUDArray(6);
 const betCost = EUDArray(6);
@@ -50,7 +51,7 @@ function updateBetUnits() {
 
 function startBetting() {
     utils.broadcastText("\04베팅을 시작하세요!");
-    SetCountdownTimer(SetTo, 30);
+    SetCountdownTimer(SetTo, 40);
 }
 
 
@@ -60,31 +61,63 @@ function bettingLoop() {
         const x, y, w, h = pos.x, pos.y, pos.w, pos.h;
         loc.setLocationPos($L("cloc1"), x, y, w, h);
 
+        KillUnit('Zerg Scourge', P8);
+
         for(var player = 0 ; player < 6 ; player++) {
             if(playerexist(player)) {
                 const bCost, bUnit = betCost[player], betUnit[player];
 
-                if(bCost != 0) {
-                    if(
-                        Accumulate(player, AtLeast, bCost, Ore) &&
-                        Bring(player, AtLeast, 1, "ScanPos", "cloc1")
-                    ) {
+                if(bCost != 0 && Bring(player, AtLeast, 1, "ScanPos", "cloc1")) {
+                    if(Accumulate(player, AtLeast, bCost, Ore)) {
                         SetCurrentPlayer(player);
-                        /**/ if(bCost == 100000) DisplayText("\x07십만원\x04원을 베팅하셨습니다.");
-                        else if(bCost == 1000000) DisplayText("\x07백만원\x04원을 베팅하셨습니다.");
-                        else if(bCost == 10000000) DisplayText("\x07천만원\x04원을 베팅하셨습니다.");
-                        else if(bCost == 100000000) DisplayText("\x071억\x04원을 베팅하셨습니다.");
+                        /**/ if(bCost == 10) DisplayText("\x07십만원\x04을 베팅하셨습니다.");
+                        else if(bCost == 100) DisplayText("\x07백만원\x04을 베팅하셨습니다.");
+                        else if(bCost == 1000) DisplayText("\x07천만원\x04을 베팅하셨습니다.");
+                        else if(bCost == 10000) DisplayText("\x071억\x04을 베팅하셨습니다.");
                         RemoveUnitAt(1, "ScanPos", "cloc1", player);
                         utils.createPassableUnit(bUnit, "cloc1", player);
                         SetResources(player, Subtract, bCost, Ore);
+                    }
+                    else {
+                        SetCurrentPlayer(player);
+                        DisplayText("\x04베팅자금이 부족합니다.");
+                        PlayWAV("staredit\\wav\\onEmpty.ogg");
                     }
                 }
             }
         }
 
+        MoveUnit(All, "(any unit)", AllPlayers, "cloc1", "cloc1");
         Order("(any unit)", AllPlayers, "cloc1", Move, "cloc1");
     });
 
     if (CountdownTimer(Exactly, 0)) return 0;
     else return 1;
+}
+
+
+function payBackBets(rouletteNum) {
+    const betUnits = [$U("10만원 베팅"), $U("100만원 베팅"), $U("1000만원 베팅"), $U("1억 베팅")];
+    const betCosts = [10, 100, 1000, 10000];
+
+    betRegions.loopBetRegions(function (rgn: betRegions.BetRegion) {
+        const pos = rgn.pos;
+        const x, y, w, h = pos.x, pos.y, pos.w, pos.h;
+        loc.setLocationPos($L("cloc1"), x, y, w, h);
+
+        const payBackRate = rgn.betChecker(rouletteNum);
+        for(var betType = 0 ; betType < 4 ; betType++) {
+            const betUnit, betCost = betUnits[betType], betCosts[betType];
+            for(var player = 0 ; player < 6;  player++) {
+                if(
+                    playerexist(player) &&
+                    Command(player, AtLeast, 1, betUnit) &&
+                    Bring(player, AtLeast, 1, betUnit, 'cloc1')
+                ) {
+                    KillUnitAt(1, betUnit, 'cloc1', player);
+                    SetResources(player, Add, betCost * payBackRate, Ore);
+                }
+            }
+        }
+    });
 }

@@ -1,9 +1,11 @@
 import roulette.roulettePhysics;
 import roulette.rouletteString;
 import bet.betRegions;
+import bet.betProcess;
 import utils.visualutils;
 import utils.sounds;
 import utils.utils;
+import utils.loc;
 
 var t = 0;
 
@@ -20,6 +22,8 @@ function rouletteLoop() {
         if(t == 0) {
             sounds.playRouletteCompleteSound();
             utils.broadcastText(rouletteString.stringTable[rouletteNum]);
+
+            // 승자 표시
             betRegions.loopBetRegions(function (rgn: betRegions.BetRegion) {
                 const multiplier = rgn.betChecker(rouletteNum);
                 if(multiplier) {
@@ -27,12 +31,25 @@ function rouletteLoop() {
                 }
             });
         }
+
+        // 배당률만큼 퍼준다
+        betProcess.payBackBets(rouletteNum);
+
         t++;
-        if(t == 15 * 24) {
+        if(t >= 5 * 24 && Bring(Force1, Exactly, 0, '(men)', 'betZone')) {
             KillUnit("Winner", P7);
             t = 0;
             return 0;
         }
+    }
+    else {
+        // 베팅자금 묶어두자
+        betRegions.loopBetRegions(function (rgn: betRegions.BetRegion) {
+            const pos = rgn.pos;
+            loc.setLocationPos($L("cloc1"), pos.x, pos.y, pos.w, pos.h);
+            MoveUnit(All, "(any unit)", AllPlayers, "cloc1", "cloc1");
+            Order("(any unit)", AllPlayers, "cloc1", Move, "cloc1");
+        });
     }
 
     return 1;

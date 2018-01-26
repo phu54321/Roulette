@@ -12,9 +12,7 @@ function fillRect(r: rect.Rect, unitType: TrgUnit, player: TrgPlayer) {
         for(var x = r.x ; x <= xEnd ; x += dx ) {
             if(x - cx + tolerance <= 2 * tolerance && y - cy + tolerance <= 2 * tolerance) continue;
             loc.pxMoveTo(x, y);
-            const uepd = utils.getNextGeneratedUnit()[[1]];
-            CreateUnit(1, unitType, "pxMove", player);
-            utils.setUnitPassable(uepd);
+            utils.createPassableUnit(unitType, "pxMove", player);
         }
     }
 }
