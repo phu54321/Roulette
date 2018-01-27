@@ -1,0 +1,12 @@
+import utils.sounds;
+
+var t = 0;
+
+function bgmloop() {
+    return;
+
+    if(t == 0) sounds.broadcastSound("staredit\\wav\\bgmstart.ogg");
+    else if(t == 8862) sounds.broadcastSound("staredit\\wav\\bgmmain.ogg");
+    else if(t == 8862 + 55902 - 42) t = 8862 - 42;
+    t += 42;
+}
