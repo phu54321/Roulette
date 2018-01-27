@@ -80,7 +80,7 @@ function gameEndProcess() {
 
     for(var player = 0 ; player < 6 ; player++) {
         SetCurrentPlayer(player);
-        if(MostResources(Ore) && Accumulate(CurrentPlayer, AtLeast, 100000, Ore)) {
+        if(MostResources(Ore) && Accumulate(CurrentPlayer, AtLeast, 50000, Ore)) {
             DisplayText("\x13\x11※※※※※※※※※※※※※※※※※※※\n\n\x13\x04   5억을 벌어 내집마련에 성공했습니다.\n\n\x13\x11※※※※※※※※※※※※※※※※※※※\n");
             PlayWAV("sound\\Misc\\transmission.WAV");
             PlayWAV("staredit\\wav\\onVictory.ogg");
