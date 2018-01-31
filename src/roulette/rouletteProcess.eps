@@ -20,7 +20,7 @@ function rouletteLoop() {
     for(var player = 0 ; player < 6 ; player++) {
         if(playerexist(player) && Bring(player, AtLeast, 1, "ScanPos", "betZone")) {
             SetCurrentPlayer(player);
-            DisplayText("\x03[에러] \x06베팅할 수 없습니다.");
+            DisplayText("\x03[에러] \x04룰렛이 진행중일 때는 베팅할 수 없습니다..");
             PlayWAV("sound\\Misc\\PError.WAV");
         }
     }
@@ -52,7 +52,7 @@ function rouletteLoop() {
             KillUnit("Winner", P7);
             t = 0;
             SetResources(Force1, Add, 1000, Ore);
-            utils.broadcastText("\x07 * \x04월급 1000만원이 입금되었습니다.");
+            utils.broadcastText("\x07 * \x04기본수당 1000만원이 입금되었습니다.");
             sounds.broadcastSound("staredit\\wav\\onIncome.ogg");
             return 0;
         }

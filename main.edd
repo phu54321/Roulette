@@ -1,10 +1,10 @@
 [main]
 input: basemap.scx
 output: Roulette.scx
-# debug: 1
+debug: 1
 
-# [authorCheck.py]
-# username: cpy3001
+[authorCheck.py]
+username: cpy3001
 
 [src/main.eps]
 [eudTurbo]

@@ -2,13 +2,24 @@ import utils.loc;
 import utils.utils;
 
 function translateScanToPosition() {
-    for(var epd = EPD(0x59CCA8) ; epd < EPD(0x59CCA8 + 1700 * 336) ; epd += 336 / 4) {
-        if(MemoryEPD(epd + 0x0C / 4, AtLeast, 1) && MemoryEPD(epd + 0x64 / 4, Exactly, $U("Scan"))) {
-            const scanX, scanY = dwbreak(dwread_epd(epd + 0x28 / 4))[[0, 1]];
-            const scanPlayer = bread_epd(epd + 0x4C / 4, 0);
-            loc.pxMoveTo(scanX, scanY);
-            utils.createPassableUnit("ScanPos", "pxMove", scanPlayer);
+    const initialEPD = EPD(0x59CCA8) + 0x0C / 4;
+    const finalEPD = EPD(0x59CCA8 + 1700 * 336) + 0x0C / 4;
+    const oldcp = getcurpl();
+    SetMemory(0x6509B0, SetTo, initialEPD);
+    while(Memory(0x6509B0, AtMost, finalEPD - 1))
+    {
+        if(Deaths(CurrentPlayer, AtLeast, 1, 0)) {
+            SetMemory(0x6509B0, Add, (0x64 - 0x0C) / 4);
+            if(Deaths(CurrentPlayer, Exactly, $U("Scan"), 0)) {
+                const scanX, scanY = dwbreak(dwread_cp((0x28 - 0x64) / 4))[[0, 1]];
+                const scanPlayer = dwbreak(dwread_cp((0x4C - 0x64) / 4))[[2]];
+                loc.pxMoveTo(scanX, scanY);
+                utils.createPassableUnit("ScanPos", "pxMove", scanPlayer);    
+            }
+            SetMemory(0x6509B0, Add, -(0x64 - 0x0C) / 4);
         }
-    }
+        SetMemory(0x6509B0, Add, 336 / 4);
+    }    
+    SetCurrentPlayer(oldcp);
     RemoveUnit("Scan", AllPlayers);
 }
