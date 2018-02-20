@@ -5,7 +5,6 @@ import utils.utils;
 import roulette.rouletteProcess;
 import chips;
 import scan2pos;
-import bgmplayer;
 
 function onPluginStart() {
     sounds.loadSounds();
@@ -42,8 +41,6 @@ var isGameOver = false;
 function gameEndProcess();
 
 function afterTriggerExec() {
-    bgmplayer.bgmloop();
-
     if(isGameOver) return;
     scan2pos.translateScanToPosition();
 
