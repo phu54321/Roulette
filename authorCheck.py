@@ -42,7 +42,7 @@ def onPluginStart():
 
     if EUDIf()(allowexec == 0):
         DoActions([
-            DisplayExtText('\x05테스트 버젼 실행시엔 제작자가 필요합니다.'),
+            DisplayText('\x05테스트 버젼 실행시엔 제작자가 필요합니다.'),
             KillUnit('(any unit)', AllPlayers),
             SetMemory(0x6509A0, SetTo, 999999),
             Defeat(),
