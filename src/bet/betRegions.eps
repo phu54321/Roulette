@@ -8,12 +8,13 @@ object BetRegion {
     var pos: rect.Rect;
     var betHereUnitEPD;
     var betChecker: EUDFuncPtr(1, 1);
+    var description: TrgString;
 };
 
 const betLocations = EUDArray(400);
 var betLocationCount = 0;
 
-function registerBetRegion(x, y, w, h, handler: EUDFuncPtr(1, 1)) {
+function registerBetRegion(x, y, w, h, handler: EUDFuncPtr(1, 1), description: TrgString) {
     const obj = BetRegion.alloc();
     const pos = rect.Rect.alloc();
     pos.x = x;
@@ -22,52 +23,62 @@ function registerBetRegion(x, y, w, h, handler: EUDFuncPtr(1, 1)) {
     pos.h = h;
     obj.pos = pos;
     obj.betChecker = handler;
+    obj.description = description;
     betLocations[betLocationCount] = obj;
     betLocationCount++;
 }
 
-function registerBetLocation(locId, handler: EUDFuncPtr(1, 1)) {
+function registerBetLocation(locId, handler: EUDFuncPtr(1, 1), description: TrgString) {
     const x, y, w, h = loc.getLocationPos(locId);
-    registerBetRegion(x, y, w, h, handler);
+    registerBetRegion(x, y, w, h, handler, description);
 }
 
 function initBetRegions() {
-    registerBetLocation($L("bet-1-12"), betRule.bet_btw(1, 12));
-    registerBetLocation($L("bet-13-24"), betRule.bet_btw(13, 24));
-    registerBetLocation($L("bet-25-36"), betRule.bet_btw(25, 36));
-    registerBetLocation($L("bet-1-18"), betRule.bet_btw(1, 18));
-    registerBetLocation($L("bet-19-36"), betRule.bet_btw(19, 36));
-    registerBetLocation($L("bet-even"), betRule.bet_multiple(2, 0));
-    registerBetLocation($L("bet-odd"), betRule.bet_multiple(2, 1));
-    registerBetLocation($L("bet-dark"), betRule.bet_dark());
-    registerBetLocation($L("bet-light"), betRule.bet_light());
-    registerBetLocation($L("bet-3n+0"), betRule.bet_multiple(3, 0));
-    registerBetLocation($L("bet-3n+2"), betRule.bet_multiple(3, 2));
-    registerBetLocation($L("bet-3n+1"), betRule.bet_multiple(3, 1));
-    registerBetLocation($L("bet-0"), betRule.bet_exact(0));
+    registerBetLocation($L("bet-1-12"), betRule.bet_btw(1, 12), "\x041부터 12까지의 수");
+    registerBetLocation($L("bet-13-24"), betRule.bet_btw(13, 24), "\x0413부터 24까지의 수");
+    registerBetLocation($L("bet-25-36"), betRule.bet_btw(25, 36), "\x0425에서 36까지의 수");
+    registerBetLocation($L("bet-1-18"), betRule.bet_btw(1, 18), "\x041에서 18까지의 수");
+    registerBetLocation($L("bet-19-36"), betRule.bet_btw(19, 36), "\x0419에서 36까지의 수");
+    registerBetLocation($L("bet-even"), betRule.bet_multiple(2, 0), "\x040을 제외한 짝수");
+    registerBetLocation($L("bet-odd"), betRule.bet_multiple(2, 1), "\x04홀수");
+    registerBetLocation($L("bet-dark"), betRule.bet_dark(), "\x04룰렛판의 어두운 칸");
+    registerBetLocation($L("bet-light"), betRule.bet_light(), "\x04룰렛판의 밝은 칸");
+    registerBetLocation($L("bet-3n+0"), betRule.bet_multiple(3, 0), "\x043, 6, 9, ... , 36");
+    registerBetLocation($L("bet-3n+2"), betRule.bet_multiple(3, 2), "\x042, 5, 8, ... , 35");
+    registerBetLocation($L("bet-3n+1"), betRule.bet_multiple(3, 1), "\x041, 4, 7, ... , 34");
+    registerBetLocation($L("bet-0"), betRule.bet_exact(0), "\x040");
 
     // 숫자에 베팅
     const x0, y0 = loc.getLocationPos($L('bet-1'))[[0, 1]];
-    for(var y = 0 ; y < 3 ; y++) {
-        for(var x = 0 ; x < 12 ; x++) {
+    foreach(y: py_range(4)) {
+        foreach(x: py_range(12)) {
             const px0 = x0 + x * (8 * 32) + 2 * 32;
             const py0 = y0 - y * (8 * 32) + 2 * 32;
             const pw, ph = 3 * 32, 3 * 32;
             const num = x * 3 + y + 1;
-            registerBetRegion(px0, py0, pw, ph, betRule.bet_exact[num]);
+            registerBetRegion(px0, py0, pw, ph, betRule.bet_exact[num],
+                py_str("\x04%d에 베팅합니다") % num
+            );
         }
     }
 
     var cornerBetStart = betLocationCount;
 
     // 코너에 베팅
-    for(var y = 0 ; y < 2 ; y++) {
-        for(var x = 0 ; x < 11 ; x++) {
+    foreach(y: py_range(2)) {
+        foreach(x: py_range(11)) {
             const px0 = x0 + x * (8 * 32) + 6 * 32;
             const py0 = y0 - y * (8 * 32) - 2 * 32;
             const pw, ph = 3 * 32, 2 * 32;
             const num = x * 3 + y + 1;
-            registerBetRegion(px0, py0, pw, ph, betRule.bet_corner[num]);
+            registerBetRegion(px0, py0, pw, ph, betRule.bet_corner[num],
+                py_str("\x04") +
+                py_str(num) + py_str(", ") +
+                py_str(num + 1) + py_str(", ") +
+                py_str(num + 3) + py_str(", ") +
+                py_str(num + 4) +
+                py_str("에 배팅합니다")
+            );
         }
     }
 

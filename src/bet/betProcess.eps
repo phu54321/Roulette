@@ -111,42 +111,7 @@ function bettingLoop() {
     else return 1;
 }
 
-
-function applyMultiplyRate(rouletteNum) {
-    const betUnits = [$U("10만원 베팅"), $U("100만원 베팅"), $U("1000만원 베팅"), $U("1억 베팅")];
-
-    betRegions.loopBetRegions(function (rgn: betRegions.BetRegion) {
-        const pos = rgn.pos;
-        const x, y, w, h = pos.x, pos.y, pos.w, pos.h;
-        loc.setLocationPos($L("cloc1"), x, y, w, h);
-
-        const payBackRate = rgn.betChecker(rouletteNum);
-        if(payBackRate == 0) {
-            KillUnitAt(All, '(men)', 'cloc1', Force1);
-        }
-        else {
-            for(var betType = 0 ; betType < 4 ; betType++) {
-                const betUnit = betUnits[betType];
-                for(var player = 0 ; player < 6;  player++) {
-                    if(
-                        playerexist(player) &&
-                        Command(player, AtLeast, 1, betUnit)
-                    ) {
-                        var betNum = 0;
-                        while(Bring(player, AtLeast, 1, betUnit, 'cloc1')) {
-                            RemoveUnitAt(1, betUnit, 'cloc1', player);
-                            betNum++;
-                        }
-                        for(var i = betNum * payBackRate ; i > 0 ; i--) {
-                            utils.createPassableUnit(betUnit, 'cloc1', player);
-                        }
-                    }
-                }
-            }
-        }
-    });
-}
-
+const playCount = EUDArray(6);
 
 function payBackBets(rouletteNum) {
     const betUnits = [$U("10만원 베팅"), $U("100만원 베팅"), $U("1000만원 베팅"), $U("1억 베팅")];
@@ -160,27 +125,61 @@ function payBackBets(rouletteNum) {
 
     betRegions.loopBetRegions(function (rgn: betRegions.BetRegion) {
         const payBackRate = rgn.betChecker(rouletteNum);
-        if(payBackRate == 0) return;
-
         const pos = rgn.pos;
         const x, y, w, h = pos.x, pos.y, pos.w, pos.h;
         loc.setLocationPos($L("cloc1"), x, y, w, h);
 
-        for(var betType = 0 ; betType < 4 ; betType++) {
-            const betUnit, betCost = betUnits[betType], betCosts[betType];
-            for(var player = 0 ; player < 6;  player++) {
-                if(
-                    playerexist(player) &&
-                    Command(player, AtLeast, 1, betUnit) &&
-                    Bring(player, AtLeast, 1, betUnit, 'cloc1')
-                ) {
-                    SetCurrentPlayer(player);
-                    KillUnitAt(1, betUnit, 'cloc1', player);
-                    SetResources(player, Add, betCost, Ore);
-                    PlayWAV("staredit\\wav\\payback.ogg");
-                    DisplayText(paybackString[betType]);
+        // 베팅 실패!
+        if(payBackRate == 0) {
+            RemoveUnitAt(All, '(men)', 'cloc1', Force1);
+            return;
+        }
+
+        for(var player = 0 ; player < 6;  player++) {
+            if(!playerexist(player)) continue;
+
+            var playerBet = 0;
+
+            // 이 지역에 얼마를 베팅했는지 봅시다.
+            for(var betType = 0 ; betType < 4 ; betType++) {
+                const betUnit, betCost = betUnits[betType], betCosts[betType];
+                if(Command(player, AtLeast, 1, betUnit)) {
+                    while(Bring(player, AtLeast, 1, betUnit, 'cloc1')) {
+                        RemoveUnitAt(1, betUnit, 'cloc1', player);
+                        playerBet += betCost;
+                    }
                 }
+            }
+
+            // 베팅에서 땄습니다.
+            if(playerBet) {
+                const playerIncome = playerBet * payBackRate;
+                const paybackString = DBString(1024);
+                SetCurrentPlayer(player);
+                dbstr_print(paybackString,
+                    '\x07 * \x01"',
+                    playerIncome,
+                    "원 \x04획득하셨습니다."
+                );
+                paybackString.Display();
+                SetResources(player, Add, playerIncome, Ore);
+
+                // 소리재생
+                playCount[player] += (playerIncome + 99) / 100;
             }
         }
     });
+}
+
+function playPaybackSound() {
+    var ret = 0;
+    for(var player = 0 ; player < 6 ; player++) {
+        if(playCount[player]) {
+            SetCurrentPlayer(player);
+            PlayWAV("staredit\\wav\\payback.ogg");
+            playCount[player]--;
+            ret = 1;
+        }
+    }
+    return ret;
 }

@@ -48,6 +48,7 @@ function afterTriggerExec() {
     SetInvincibility(Enable, '(any unit)', AllPlayers, 'Anywhere');
 
     betProcess.updateBetUnits();
+    betProcess.playPaybackSound();
 
     // State machine
     if (state == STATE_ROULETTE) {
