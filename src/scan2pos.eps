@@ -5,21 +5,21 @@ function translateScanToPosition() {
     const initialEPD = EPD(0x59CCA8) + 0x0C / 4;
     const finalEPD = EPD(0x59CCA8 + 1700 * 336) + 0x0C / 4;
     const oldcp = getcurpl();
-    SetMemory(0x6509B0, SetTo, initialEPD);
+    SetCurrentPlayer(initialEPD);
     while(Memory(0x6509B0, AtMost, finalEPD - 1))
     {
         if(Deaths(CurrentPlayer, AtLeast, 1, 0)) {
-            SetMemory(0x6509B0, Add, (0x64 - 0x0C) / 4);
+            addcurpl((0x64 - 0x0C) / 4);
             if(Deaths(CurrentPlayer, Exactly, $U("Scan"), 0)) {
                 const scanX, scanY = dwbreak(dwread_cp((0x28 - 0x64) / 4))[[0, 1]];
                 const scanPlayer = dwbreak(dwread_cp((0x4C - 0x64) / 4))[[2]];
                 loc.pxMoveTo(scanX, scanY);
-                utils.createPassableUnit("ScanPos", "pxMove", scanPlayer);    
+                utils.createPassableUnit("ScanPos", "pxMove", scanPlayer);
             }
-            SetMemory(0x6509B0, Add, -(0x64 - 0x0C) / 4);
+            addcurpl(-(0x64 - 0x0C) / 4);
         }
-        SetMemory(0x6509B0, Add, 336 / 4);
-    }    
+        addcurpl(336 / 4);
+    }
     SetCurrentPlayer(oldcp);
     RemoveUnit("Scan", AllPlayers);
 }
