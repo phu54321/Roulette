@@ -2,6 +2,7 @@
 input: basemap.scx
 output: Roulette.scx
 debug: 1
+decodeUnitName: CP949
 
 [authorCheck.py]
 username: cpy3001
