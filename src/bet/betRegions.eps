@@ -50,7 +50,7 @@ function initBetRegions() {
 
     // 숫자에 베팅
     const x0, y0 = loc.getLocationPos($L('bet-1'))[[0, 1]];
-    foreach(y: py_range(4)) {
+    foreach(y: py_range(3)) {
         foreach(x: py_range(12)) {
             const px0 = x0 + x * (8 * 32) + 2 * 32;
             const py0 = y0 - y * (8 * 32) + 2 * 32;
