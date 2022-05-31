@@ -8,7 +8,3 @@ username: cpy3001
 
 [src/main.eps]
 [eudTurbo]
-
-[bgmplayer.py]
-path: res/bgm.ogg
-length: 33.680
