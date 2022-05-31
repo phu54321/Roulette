@@ -1,17 +1,17 @@
-const pxMove = $L("pxMove"); 
+const pxMove = $L("pxMove");
 
 function setLocationPos(locId, x, y, w, h) {
-    SetMemoryEPD(EPD(0x58DC60) + 5 * locId + 0, SetTo, x);
-    SetMemoryEPD(EPD(0x58DC60) + 5 * locId + 1, SetTo, y);
-    SetMemoryEPD(EPD(0x58DC60) + 5 * locId + 2, SetTo, x + w);
-    SetMemoryEPD(EPD(0x58DC60) + 5 * locId + 3, SetTo, y + h);
+    SetMemoryEPD(EPD(0x58DC4C) + 5 * locId + 0, SetTo, x);
+    SetMemoryEPD(EPD(0x58DC4C) + 5 * locId + 1, SetTo, y);
+    SetMemoryEPD(EPD(0x58DC4C) + 5 * locId + 2, SetTo, x + w);
+    SetMemoryEPD(EPD(0x58DC4C) + 5 * locId + 3, SetTo, y + h);
 }
 
 function getLocationPos(locId) {
-    const x0 = dwread_epd(EPD(0x58DC60) + 5 * locId + 0);
-    const y0 = dwread_epd(EPD(0x58DC60) + 5 * locId + 1);
-    const x1 = dwread_epd(EPD(0x58DC60) + 5 * locId + 2);
-    const y1 = dwread_epd(EPD(0x58DC60) + 5 * locId + 3);
+    const x0 = dwread_epd(EPD(0x58DC4C) + 5 * locId + 0);
+    const y0 = dwread_epd(EPD(0x58DC4C) + 5 * locId + 1);
+    const x1 = dwread_epd(EPD(0x58DC4C) + 5 * locId + 2);
+    const y1 = dwread_epd(EPD(0x58DC4C) + 5 * locId + 3);
     return x0, y0, x1 - x0, y1 - y0;
 }
 
